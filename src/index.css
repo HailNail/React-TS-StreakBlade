@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: pastel --default, aqua;
+  root: ":root";
+}
+
+@plugin 'tailwind-scrollbar';

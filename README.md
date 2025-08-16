@@ -1,69 +1,71 @@
-# React + TypeScript + Vite
+# ⚔️ StreakBlade
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A minimalist streak tracker built with React + TypeScript + Tailwind + daisyUI.
+Track your abstinence streaks, celebrate milestones, and keep your motivation alive with powerful quotes and progress goals.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ⏱️ Stopwatch-style streak counter (counts days, hours, minutes, seconds).
 
-## Expanding the ESLint configuration
+- 🌑 Light/Dark mode support.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 🏆 Achievement milestones (1, 3, 7, 14, 30 days) with progress bars.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- 📜 Motivational quotes loaded daily from a custom JSON.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- 🗂️ History tracking (view past streaks in a dropdown).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- 🎨 Custom scroll + animations for smooth UX.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🖼️ Preview
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+![main](./docs/main.png)
+![Dark Mode](./docs/dark-mode.png)
+![Add Habit](./docs/add-habit.png)
+![Status](./docs/status.png)
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠️ Tech Stack
+
+- ⚛️ React (with TypeScript)
+
+- 🎨 Tailwind CSS + daisyUI
+
+- 🔄 Custom hooks for streak tracking and history management
+
+## 📦 Installation
+
+### Clone repository
+
+git clone https://github.com/your-username/streakblade.git
+
+### Enter project folder
+
+cd streakblade
+
+### Install dependencies
+
+npm install
+
+### Run development server
+
+npm run dev
+
+## 🎯 Usage
+
+- Start the app.
+
+- Begin your streak by hitting Start.
+
+- Track your achievements as you progress.
+
+- Open the History dropdown to see past streaks.
+
+- Stay motivated with quotes like: “A thousand steps begin with the first.”
+
+## 🤝 Contributing
+
+PRs welcome! If you’d like to add more motivational quotes, achievements, or features — feel free to fork and submit a pull request.
+
+### 📜 License
+
+MIT License © 2025 HailNail

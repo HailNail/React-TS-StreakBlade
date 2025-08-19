@@ -7,19 +7,10 @@ const Header = () => {
   const [fadeIn, setFadeIn] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("dailyQuote");
-    const savedDate = localStorage.getItem("dailyQuoteDate");
-    const today = new Date().toDateString();
-
-    if (saved && savedDate === today) {
-      setQuote(saved);
-      setLoading(false);
-      setFadeIn(true);
-      return;
-    }
-
+    let intervalId: number | undefined;
     const fetchQuote = async () => {
       try {
+        const today = new Date().toDateString();
         const res = await fetch("https://api.api-ninjas.com/v1/quotes", {
           headers: {
             "X-Api-Key": import.meta.env.VITE_API_NINJAS_KEY,
@@ -42,10 +33,49 @@ const Header = () => {
         setQuote("Stay inspired, even offline.");
       } finally {
         setLoading(false);
+        setFadeIn(true);
       }
     };
 
-    fetchQuote();
+    // 🔎 check saved quote first
+    const today = new Date().toDateString();
+    const saved = localStorage.getItem("dailyQuote");
+    const savedDate = localStorage.getItem("dailyQuoteDate");
+
+    if (saved && savedDate === today) {
+      setQuote(saved);
+      setLoading(false);
+      setFadeIn(true);
+    } else {
+      fetchQuote();
+    }
+
+    // 🌙 schedule first refresh at next midnight
+    const now = new Date();
+    const nextMidnight = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      0,
+      0,
+      0
+    );
+    const msUntilMidnight = nextMidnight.getTime() - now.getTime();
+
+    const timeoutId = window.setTimeout(() => {
+      fetchQuote();
+
+      // then repeat every 24h
+      intervalId = window.setInterval(() => {
+        fetchQuote();
+      }, 24 * 60 * 60 * 1000);
+    }, msUntilMidnight);
+
+    // cleanup on unmount
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, []);
 
   // Trigger fade-in when loading finishes

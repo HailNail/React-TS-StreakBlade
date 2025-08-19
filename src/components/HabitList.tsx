@@ -4,6 +4,7 @@ import Modal from "./Modal";
 import AddHabitForm from "./AddHabitForm";
 import ConfirmDialog from "./ConfirmDialog";
 import motivatedPhrases from "../utils/motivatedPhrases.json";
+import { achievementsData } from "../utils/achievementsData";
 
 interface Habit {
   id: number;
@@ -14,6 +15,7 @@ interface Habit {
 }
 
 const STORAGE_KEY = "streakblade_habits";
+const TOASTS_KEY = "streakblade_shownToasts";
 
 const HabitList = () => {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -22,6 +24,15 @@ const HabitList = () => {
     null
   );
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
+  const [activeToasts, setActiveToasts] = useState<
+    { id: string; message: string }[]
+  >([]);
+
+  // Get random motivational phrase
+  const [getRandomMotivationalPhrase] = useState(() => {
+    const randomIndex = Math.floor(Math.random() * motivatedPhrases.length);
+    return motivatedPhrases[randomIndex].phrase;
+  });
 
   // Load from storage
   useEffect(() => {
@@ -39,10 +50,64 @@ const HabitList = () => {
     }
   }, [habits, loaded]);
 
-  const getRandomMotivationalPhrase = () => {
-    const randomIndex = Math.floor(Math.random() * motivatedPhrases.length);
-    return motivatedPhrases[randomIndex].phrase;
+  // Load already shown toasts
+
+  const getShownToasts = (): string[] => {
+    const stored = localStorage.getItem(TOASTS_KEY);
+    return stored ? JSON.parse(stored) : [];
   };
+
+  const markToastAsShown = (toastId: string) => {
+    const prev = getShownToasts();
+    const updated = [...prev, toastId];
+    localStorage.setItem(TOASTS_KEY, JSON.stringify(updated));
+  };
+
+  // Check achievements for all habits
+
+  useEffect(() => {
+    if (!loaded) return;
+    const today = new Date().toDateString();
+    const alreadyShown = getShownToasts();
+
+    habits.forEach((habit) => {
+      const streakDays = habit.lastReset
+        ? Math.floor(
+            (Date.now() - new Date(habit.lastReset).getTime()) /
+              (1000 * 60 * 60 * 24)
+          )
+        : 0;
+
+      achievementsData.forEach((ach) => {
+        if (streakDays >= ach.days) {
+          const toastId = `${habit.id} - ${ach.id} - ${today}`;
+          if (!alreadyShown.includes(toastId)) {
+            setActiveToasts((prev) => [
+              ...prev,
+              {
+                id: toastId,
+                message: `${habit.name} unlocked: ${ach.title}! ${getRandomMotivationalPhrase}`,
+              },
+            ]);
+            markToastAsShown(toastId);
+          }
+        }
+      });
+    });
+  }, [habits, loaded]);
+
+  // Toast auto-remove
+
+  useEffect(() => {
+    if (activeToasts.length > 0) {
+      const timer = setTimeout(() => {
+        setActiveToasts((prev) => prev.slice(1));
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeToasts]);
+
+  // habit management
 
   const addHabit = (name: string) => {
     if (!name.trim()) return;
@@ -56,8 +121,15 @@ const HabitList = () => {
     setHabits((prev) => [...prev, habit]);
   };
 
+  const clearToastsForHabit = (habitId: number) => {
+    const shownToasts = getShownToasts(); // returns array of toastIds
+    const updated = shownToasts.filter((id) => !id.startsWith(`${habitId} -`));
+    localStorage.setItem(TOASTS_KEY, JSON.stringify(updated));
+  };
+
   const deleteHabit = (id: number) => {
     setHabits((prev) => prev.filter((habit) => habit.id !== id));
+    clearToastsForHabit(id);
   };
 
   const resetHabit = (id: number) => {
@@ -75,13 +147,14 @@ const HabitList = () => {
           : habit
       )
     );
+    clearToastsForHabit(id);
   };
 
   return (
     <div className="space-y-4 font-patrick">
       <div className="flex flex-row justify-between items-center m-4">
         <h2 className="text-lg md:text-2xl font-bold pr-2">
-          {getRandomMotivationalPhrase()}
+          {getRandomMotivationalPhrase}
         </h2>
         <button className="btn btn-primary" onClick={() => setModalType("add")}>
           + Add Habit
@@ -108,6 +181,15 @@ const HabitList = () => {
             />
           ))
           .reverse()}
+      </div>
+
+      {/* Toast notifications */}
+      <div className="toast toast-end">
+        {activeToasts.map((toast) => (
+          <div className="alert alert-info shadow-lg" key={toast.id}>
+            <span>{toast.message}</span>
+          </div>
+        ))}
       </div>
 
       <Modal isOpen={modalType !== null} onClose={() => setModalType(null)}>

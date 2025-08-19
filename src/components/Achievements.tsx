@@ -24,7 +24,7 @@ export default function Achievements({ currentStreakDays }: AchievementsProps) {
         className="dropdown-content menu bg-base-100 rounded-box w-52 p-2 shadow-sm"
       >
         <div
-          className="overflow-y-auto max-h-48 px-1 [&::-webkit-scrollbar]:w-2
+          className="overflow-y-auto max-h-48 px-2 sm:px-1 [&::-webkit-scrollbar]:w-2
   [&::-webkit-scrollbar-track]:rounded-full
   [&::-webkit-scrollbar-track]:bg-base-200
   [&::-webkit-scrollbar-thumb]:rounded-full

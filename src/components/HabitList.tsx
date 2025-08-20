@@ -59,15 +59,16 @@ const HabitList = () => {
 
   const markToastAsShown = (toastId: string) => {
     const prev = getShownToasts();
-    const updated = [...prev, toastId];
-    localStorage.setItem(TOASTS_KEY, JSON.stringify(updated));
+    if (!prev.includes(toastId)) {
+      const updated = [...prev, toastId];
+      localStorage.setItem(TOASTS_KEY, JSON.stringify(updated));
+    }
   };
 
   // Check achievements for all habits
 
   useEffect(() => {
     if (!loaded) return;
-    const today = new Date().toDateString();
     const alreadyShown = getShownToasts();
 
     habits.forEach((habit) => {
@@ -80,13 +81,13 @@ const HabitList = () => {
 
       achievementsData.forEach((ach) => {
         if (streakDays >= ach.days) {
-          const toastId = `${habit.id} - ${ach.id} - ${today}`;
+          const toastId = `${habit.id} - ${ach.id}`;
           if (!alreadyShown.includes(toastId)) {
             setActiveToasts((prev) => [
               ...prev,
               {
                 id: toastId,
-                message: `${habit.name} unlocked: ${ach.title}! ${getRandomMotivationalPhrase}`,
+                message: `${habit.name} unlocked: ${ach.title}!`,
               },
             ]);
             markToastAsShown(toastId);
@@ -184,7 +185,7 @@ const HabitList = () => {
       </div>
 
       {/* Toast notifications */}
-      <div className="toast toast-end">
+      <div className="toast toast-end z-50">
         {activeToasts.map((toast) => (
           <div className="alert alert-info shadow-lg" key={toast.id}>
             <span>{toast.message}</span>

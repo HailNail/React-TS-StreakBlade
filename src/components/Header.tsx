@@ -1,27 +1,27 @@
 import ThemeToggle from "./ThemeToggle";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+
+type Timer = ReturnType<typeof setTimeout> | undefined;
 
 const Header = () => {
+  const timeoutId = useRef<Timer>(undefined);
+  const intervalId = useRef<Timer>(undefined);
+
   const [quote, setQuote] = useState("");
   const [loading, setLoading] = useState(true);
   const [fadeIn, setFadeIn] = useState(false);
 
   useEffect(() => {
-    let intervalId: number | undefined;
     const fetchQuote = async () => {
       try {
         const today = new Date().toDateString();
-        const res = await fetch("https://api.api-ninjas.com/v1/quotes", {
-          headers: {
-            "X-Api-Key": import.meta.env.VITE_API_NINJAS_KEY,
-          },
-        });
+        const res = await fetch("https://dummyjson.com/quotes/random");
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
-        if (data[0]) {
-          const newQuote = `“${data[0].quote}” — ${data[0].author}`;
+        if (data && data.quote) {
+          const newQuote = `“${data.quote}” — ${data.author}`;
           setQuote(newQuote);
           localStorage.setItem("dailyQuote", newQuote);
           localStorage.setItem("dailyQuoteDate", today);
@@ -37,7 +37,7 @@ const Header = () => {
       }
     };
 
-    // 🔎 check saved quote first
+    // 🔎 Check saved quote first
     const today = new Date().toDateString();
     const saved = localStorage.getItem("dailyQuote");
     const savedDate = localStorage.getItem("dailyQuoteDate");
@@ -50,7 +50,7 @@ const Header = () => {
       fetchQuote();
     }
 
-    // 🌙 schedule first refresh at next midnight
+    // 🌙 Schedule first refresh at next midnight
     const now = new Date();
     const nextMidnight = new Date(
       now.getFullYear(),
@@ -62,21 +62,22 @@ const Header = () => {
     );
     const msUntilMidnight = nextMidnight.getTime() - now.getTime();
 
-    const timeoutId = window.setTimeout(() => {
+    // Set the initial timeout using useRef
+    timeoutId.current = setTimeout(() => {
       fetchQuote();
 
-      // then repeat every 24h
-      intervalId = window.setInterval(() => {
+      // Then set the daily interval using useRef
+      intervalId.current = setInterval(() => {
         fetchQuote();
       }, 24 * 60 * 60 * 1000);
     }, msUntilMidnight);
 
-    // cleanup on unmount
+    // Cleanup function to clear timers
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      if (intervalId) clearInterval(intervalId);
+      if (timeoutId.current) clearTimeout(timeoutId.current);
+      if (intervalId.current) clearInterval(intervalId.current);
     };
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   // Trigger fade-in when loading finishes
   useEffect(() => {

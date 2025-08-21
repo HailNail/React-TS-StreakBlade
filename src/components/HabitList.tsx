@@ -14,6 +14,11 @@ interface Habit {
   habit?: string;
 }
 
+type Toast = {
+  id: string;
+  message: string;
+};
+
 const STORAGE_KEY = "streakblade_habits";
 const TOASTS_KEY = "streakblade_shownToasts";
 
@@ -52,15 +57,17 @@ const HabitList = () => {
 
   // Load already shown toasts
 
-  const getShownToasts = (): string[] => {
+  const getShownToasts = (): Record<string, number> => {
     const stored = localStorage.getItem(TOASTS_KEY);
-    return stored ? JSON.parse(stored) : [];
+    // Returns an object where keys are habit IDs and values are the highest achievement IDs
+    return stored ? JSON.parse(stored) : {};
   };
 
-  const markToastAsShown = (toastId: string) => {
+  const markToastAsShown = (habitId: string, achievementId: number) => {
     const prev = getShownToasts();
-    if (!prev.includes(toastId)) {
-      const updated = [...prev, toastId];
+    // Check if the current achievement is a higher tier than the previously stored one
+    if (!prev[habitId] || achievementId > prev[habitId]) {
+      const updated = { ...prev, [habitId]: achievementId };
       localStorage.setItem(TOASTS_KEY, JSON.stringify(updated));
     }
   };
@@ -70,6 +77,10 @@ const HabitList = () => {
   useEffect(() => {
     if (!loaded) return;
     const alreadyShown = getShownToasts();
+    const newToasts: Toast[] = [];
+    const sortedAchievements = [...achievementsData].sort(
+      (a, b) => b.days - a.days
+    );
 
     habits.forEach((habit) => {
       const streakDays = habit.lastReset
@@ -79,22 +90,30 @@ const HabitList = () => {
           )
         : 0;
 
-      achievementsData.forEach((ach) => {
+      for (const ach of sortedAchievements) {
         if (streakDays >= ach.days) {
-          const toastId = `${habit.id} - ${ach.id}`;
-          if (!alreadyShown.includes(toastId)) {
-            setActiveToasts((prev) => [
-              ...prev,
-              {
-                id: toastId,
-                message: `${habit.name} unlocked: ${ach.title}!`,
-              },
-            ]);
-            markToastAsShown(toastId);
+          const uniqueToastId = `${habit.id}-${ach.id}`;
+
+          // Get the highest achievement ID that was previously shown for this habit
+          const highestShownAchId = alreadyShown[habit.id];
+
+          // Only add a new toast if a higher-tier achievement is unlocked
+          if (!highestShownAchId || ach.id > highestShownAchId) {
+            newToasts.push({
+              id: uniqueToastId,
+              message: `🎉 ${habit.name} unlocked: ${ach.title}!`,
+            });
+            // Update localStorage with the new highest achievement ID for this habit
+            markToastAsShown(habit.id.toString(), ach.id);
+            break; // Stop checking lower-tier achievements
           }
         }
-      });
+      }
     });
+
+    if (newToasts.length > 0) {
+      setActiveToasts((prev) => [...prev, ...newToasts]);
+    }
   }, [habits, loaded]);
 
   // Toast auto-remove
@@ -123,9 +142,11 @@ const HabitList = () => {
   };
 
   const clearToastsForHabit = (habitId: number) => {
-    const shownToasts = getShownToasts(); // returns array of toastIds
-    const updated = shownToasts.filter((id) => !id.startsWith(`${habitId} -`));
-    localStorage.setItem(TOASTS_KEY, JSON.stringify(updated));
+    const shownToasts = getShownToasts(); // returns an object mapping habitId to achievementId
+    if (shownToasts.hasOwnProperty(habitId)) {
+      delete shownToasts[habitId];
+      localStorage.setItem(TOASTS_KEY, JSON.stringify(shownToasts));
+    }
   };
 
   const deleteHabit = (id: number) => {

@@ -1,8 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MdDarkMode, MdOutlineLightMode } from "react-icons/md";
 import { themeChange } from "theme-change";
 
 const ThemeToggle = () => {
+  const [theme, setTheme] = useState<string>(() => {
+    // load from localStorage or default to "pastel"
+    return localStorage.getItem("theme") || "pastel";
+  });
+
+  useEffect(() => {
+    // set <html data-theme="...">
+    document.documentElement.setAttribute("data-theme", theme);
+    // persist to localStorage
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
   useEffect(() => {
     themeChange(false);
   }, []);
@@ -15,6 +27,8 @@ const ThemeToggle = () => {
         </span>
         <input
           type="checkbox"
+          checked={theme === "aqua"}
+          onChange={() => setTheme(theme === "aqua" ? "pastel" : "aqua")}
           value="aqua"
           className="toggle theme-controller"
         />

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
 import Achievements from "./Achievements";
+import HistoryWithHeatmap from "./HistoryWithHeatmap";
 
 interface HabitCardProps {
   id: number;
@@ -59,8 +59,7 @@ const HabitCard = ({
   }, [lastReset]);
 
   const popoverId = `popover-${id}`;
-
-  const popoverRef = useRef<HTMLUListElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
 
   // This hook manages the display of the history popover
   useEffect(() => {
@@ -83,13 +82,6 @@ const HabitCard = ({
     };
   }, [popoverRef]);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentHistory = history.slice(startIndex, startIndex + itemsPerPage);
-  const totalPages = Math.ceil(history.length / itemsPerPage);
-  const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);
-
   return (
     <div className="card bg-base-200 shadow-md border border-neutral-content p-4 rounded-lg hover:shadow-lg transition-shadow duration-200 font-quattrocento">
       <h2 className="card-title text-2xl font-bold m-1">{name}</h2>
@@ -111,48 +103,15 @@ const HabitCard = ({
         </button>
       </div>
       <div>
-        <ul
+        <div
           ref={popoverRef}
-          className="dropdown menu w-52 rounded-box bg-base-100 shadow-sm text-base"
-          popover="auto"
           id={popoverId}
+          popover="auto"
+          className="dropdown dropdown-center menu w-80 h-48 overflow-hidden rounded-box bg-base-200 border-2 border-base-300 shadow-sm text-base"
           style={{ ["positionAnchor" as any]: `--anchor-${id}` }}
         >
-          {currentHistory.length > 0 ? (
-            <>
-              {[...currentHistory]
-                .slice()
-                .reverse()
-                .map((date, idx) => (
-                  <li key={idx} className="text-center">
-                    {new Date(date).toLocaleString()}
-                  </li>
-                ))}
-              <div className="flex justify-center mt-2 join">
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  className="join-item btn text-neutral rounded disabled:opacity-50"
-                >
-                  <FaLongArrowAltLeft size={24} />
-                </button>
-                <span className="px-4 py-1 text-neutral flex justify-center items-center text-center text-xs">
-                  Page <br />
-                  {currentPage} of {totalPages}
-                </span>
-                <button
-                  disabled={currentPage === totalPages}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  className="join-item btn text-neutral rounded mr-2 disabled:opacity-50"
-                >
-                  <FaLongArrowAltRight size={24} />
-                </button>
-              </div>
-            </>
-          ) : (
-            <li>No history available</li>
-          )}
-        </ul>
+          <HistoryWithHeatmap history={history} />
+        </div>
       </div>
     </div>
   );

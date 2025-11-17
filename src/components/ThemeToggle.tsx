@@ -5,7 +5,7 @@ import { themeChange } from "theme-change";
 const ThemeToggle = () => {
   const [theme, setTheme] = useState<string>(() => {
     // load from localStorage or default to "pastel"
-    return localStorage.getItem("theme") || "pastel";
+    return localStorage.getItem("theme") || "light";
   });
 
   useEffect(() => {
@@ -27,9 +27,9 @@ const ThemeToggle = () => {
         </span>
         <input
           type="checkbox"
-          checked={theme === "aqua"}
-          onChange={() => setTheme(theme === "aqua" ? "pastel" : "aqua")}
-          value="aqua"
+          checked={theme === "dark"}
+          onChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+          value="dark"
           className="toggle theme-controller"
         />
         <span className="label-text">

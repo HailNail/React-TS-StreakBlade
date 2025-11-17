@@ -12,9 +12,9 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
 
   return ReactDOM.createPortal(
     <div className="modal modal-open">
-      <div className="modal-box relative bg-base-200">
+      <div className="modal-box relative bg-base-200 text-primary">
         <button
-          className="btn btn-md btn-circle absolute right-2 top-2"
+          className="btn btn-ghost btn-md btn-circle absolute right-2 top-2"
           onClick={onClose}
         >
           ✕

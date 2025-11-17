@@ -35,7 +35,7 @@ const Footer = () => {
         <div className="grid grid-flow-col gap-4">
           <a
             href="https://github.com/HailNail"
-            className="hover:text-success transition-colors duration-200"
+            className="hover:text-accent transition-colors duration-200"
           >
             <FaGithub size={24} />
           </a>
@@ -47,7 +47,7 @@ const Footer = () => {
           </a>
           <a
             href="https://t.me/HailNail"
-            className="hover:text-info transition-colors duration-200"
+            className="hover:text-accent transition-colors duration-200"
           >
             <FaTelegram size={24} />
           </a>

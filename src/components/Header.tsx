@@ -1,91 +1,13 @@
+import { useDailyQuoteStore } from "../stores/useDailyQuoteStore";
 import ThemeToggle from "./ThemeToggle";
-import { useEffect, useState, useRef } from "react";
-
-type Timer = ReturnType<typeof setTimeout> | undefined;
+import { useEffect } from "react";
 
 const Header = () => {
-  const timeoutId = useRef<Timer>(undefined);
-  const intervalId = useRef<Timer>(undefined);
-
-  const [quote, setQuote] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [fadeIn, setFadeIn] = useState(false);
+  const { quote, loading, fadeIn, initQuote } = useDailyQuoteStore();
 
   useEffect(() => {
-    const fetchQuote = async () => {
-      try {
-        const today = new Date().toDateString();
-        const res = await fetch("https://dummyjson.com/quotes/random");
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const data = await res.json();
-        if (data && data.quote) {
-          const newQuote = `“${data.quote}” — ${data.author}`;
-          setQuote(newQuote);
-          localStorage.setItem("dailyQuote", newQuote);
-          localStorage.setItem("dailyQuoteDate", today);
-        } else {
-          setQuote("Stay inspired, even offline.");
-        }
-      } catch (error) {
-        console.error("Quote fetch failed:", error);
-        setQuote("Stay inspired, even offline.");
-      } finally {
-        setLoading(false);
-        setFadeIn(true);
-      }
-    };
-
-    // 🔎 Check saved quote first
-    const today = new Date().toDateString();
-    const saved = localStorage.getItem("dailyQuote");
-    const savedDate = localStorage.getItem("dailyQuoteDate");
-
-    if (saved && savedDate === today) {
-      setQuote(saved);
-      setLoading(false);
-      setFadeIn(true);
-    } else {
-      fetchQuote();
-    }
-
-    // 🌙 Schedule first refresh at next midnight
-    const now = new Date();
-    const nextMidnight = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + 1,
-      0,
-      0,
-      0
-    );
-    const msUntilMidnight = nextMidnight.getTime() - now.getTime();
-
-    // Set the initial timeout using useRef
-    timeoutId.current = setTimeout(() => {
-      fetchQuote();
-
-      // Then set the daily interval using useRef
-      intervalId.current = setInterval(() => {
-        fetchQuote();
-      }, 24 * 60 * 60 * 1000);
-    }, msUntilMidnight);
-
-    // Cleanup function to clear timers
-    return () => {
-      if (timeoutId.current) clearTimeout(timeoutId.current);
-      if (intervalId.current) clearInterval(intervalId.current);
-    };
-  }, []); // Empty dependency array ensures this runs only once on mount
-
-  // Trigger fade-in when loading finishes
-  useEffect(() => {
-    if (!loading) {
-      const timeout = setTimeout(() => setFadeIn(true), 100);
-      return () => clearTimeout(timeout);
-    }
-  }, [loading]);
+    initQuote();
+  }, []);
 
   return (
     <div className="flex flex-wrap sm:flex-nowrap sm:justify-center p-4 mb-2 w-full bg-base-300 text-base-content shadow-md font-quattrocento text-2xl">

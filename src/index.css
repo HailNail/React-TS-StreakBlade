@@ -1,6 +1,74 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: pastel --default, aqua;
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(88% 0.02 263);
+  --color-base-200: oklch(98% 0.01 260);
+  --color-base-300: oklch(94% 0.015 262);
+  --color-base-content: oklch(20% 0.04 260);
+  --color-primary: oklch(44% 0.11 240.79);
+  --color-primary-content: oklch(98% 0.005 255);
+  --color-secondary: oklch(45% 0.05 230);
+  --color-secondary-content: oklch(96% 0.007 247.896);
+  --color-accent: oklch(58% 0.158 241.966);
+  --color-accent-content: oklch(17% 0.05 200);
+  --color-neutral: oklch(92% 0.013 255.508);
+  --color-neutral-content: oklch(96% 0.01 245);
+  --color-info: oklch(75% 0.05 255);
+  --color-info-content: oklch(25% 0.06 243);
+  --color-success: oklch(78% 0.12 132);
+  --color-success-content: oklch(22% 0.08 132);
+  --color-warning: oklch(82% 0.14 70);
+  --color-warning-content: oklch(30% 0.1 70);
+  --color-error: oklch(70% 0.15 20);
+  --color-error-content: oklch(25% 0.1 20);
+  --radius-selector: 0.5rem;
+  --radius-field: 2rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: "dark";
+  --color-base-100: oklch(12% 0.042 264.695);
+  --color-base-200: oklch(20% 0.042 265.755);
+  --color-base-300: oklch(27% 0.041 260.031);
+  --color-base-content: oklch(95% 0.026 236.824);
+  --color-primary: #eaebed;
+  --color-primary-content: oklch(30% 0.056 229.695);
+  --color-secondary: #a3bac3;
+  --color-secondary-content: oklch(30% 0.056 229.695);
+  --color-accent: #01a7c2;
+  --color-accent-content: oklch(30% 0.056 229.695);
+  --color-neutral: #007090;
+  --color-neutral-content: oklch(98% 0.003 247.858);
+  --color-info: oklch(70% 0.04 256.788);
+  --color-info-content: oklch(29% 0.066 243.157);
+  --color-success: oklch(76% 0.233 130.85);
+  --color-success-content: oklch(27% 0.046 192.524);
+  --color-warning: oklch(75% 0.183 55.934);
+  --color-warning-content: oklch(28% 0.066 53.813);
+  --color-error: oklch(63% 0.237 25.331);
+  --color-error-content: oklch(28% 0.109 3.907);
+  --radius-selector: 0.5rem;
+  --radius-field: 2rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 
 @plugin 'tailwind-scrollbar';

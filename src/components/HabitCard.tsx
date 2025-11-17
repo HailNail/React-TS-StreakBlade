@@ -1,62 +1,21 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Achievements from "./Achievements";
 import HistoryWithHeatmap from "./HistoryWithHeatmap";
+import type { HabitCardProps } from "../types/habitTypes";
+import { useHabitsStore } from "../stores/useHabitsStore";
+import { useElapsedTime } from "../hooks/useElapsedTime";
+import { calculateStreaks } from "../utils/calculateStreakForCard";
 
-interface HabitCardProps {
-  id: number;
-  name: string;
-  lastReset?: string;
-  history?: string[];
-  onReset: () => void;
-  onDelete: () => void;
-}
+const HabitCard = ({ id, onReset, onDelete }: HabitCardProps) => {
+  const habit = useHabitsStore((state) =>
+    state.habits.find((h) => h.id === id)
+  );
 
-const HabitCard = ({
-  id,
-  name,
-  lastReset,
-  history = [],
-  onReset,
-  onDelete,
-}: HabitCardProps) => {
-  const [timeElapsed, setTimeElapsed] = useState<string>("");
+  const lastReset = habit?.lastReset;
+  const history = habit?.history ?? [];
+
+  const timeElapsed = useElapsedTime(lastReset);
   const [showHistory, setShowHistory] = useState(false);
-
-  // Format ms into "Xd Yh Zm Ss"
-  const formatDuration = (ms: number) => {
-    const seconds = Math.floor(ms / 1000) % 60;
-    const minutes = Math.floor(ms / (1000 * 60)) % 60;
-    const hours = Math.floor(ms / (1000 * 60 * 60)) % 24;
-    const days = Math.floor(ms / (1000 * 60 * 60 * 24));
-    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  };
-
-  // For achievements
-  const currentStreakDays = lastReset
-    ? Math.floor(
-        (Date.now() - new Date(lastReset).getTime()) / (1000 * 60 * 60 * 24)
-      )
-    : 0;
-
-  // This hook manages the display of elapsed time since a habit was last reset
-  useEffect(() => {
-    if (!lastReset) {
-      setTimeElapsed("Not started yet");
-      return;
-    }
-    // This function updates the elapsed time
-    const update = () => {
-      const diff = Date.now() - new Date(lastReset).getTime();
-      setTimeElapsed(formatDuration(diff));
-    };
-
-    update();
-    // Set an interval to update the elapsed time every second
-    const timer = setInterval(update, 1000);
-    // Clear the interval on component unmount
-    //  it prevents multiple timers from running simultaneously and avoids potential memory leaks or unwanted updates after the component is no longer in use
-    return () => clearInterval(timer);
-  }, [lastReset]);
 
   const popoverId = `popover-${id}`;
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -82,20 +41,45 @@ const HabitCard = ({
     };
   }, [popoverRef]);
 
+  const currentStreakDays = useMemo(() => {
+    if (!lastReset) return 0;
+    return Math.floor(
+      (Date.now() - new Date(lastReset).getTime()) / (1000 * 60 * 60 * 24)
+    );
+  }, [lastReset]);
+
+  const { lastStreak, maxStreak } = lastReset
+    ? calculateStreaks(lastReset, history)
+    : { lastStreak: 0, maxStreak: 0 };
+  if (!habit) return null;
+
   return (
-    <div className="card bg-base-200 shadow-md border border-neutral-content p-4 rounded-lg hover:shadow-lg transition-shadow duration-200 font-quattrocento">
-      <h2 className="card-title text-2xl font-bold m-1">{name}</h2>
-      <p className="text-secondary-content mx-1 my-2">⏱ {timeElapsed}</p>
+    <div className="card bg-base-100 shadow-md border-2 border-neutral p-4 rounded-lg hover:shadow-lg transition-shadow duration-200 font-quattrocento">
+      <h2 className="card-title text-secondary text-2xl font-bold m-1">
+        {habit.name}
+      </h2>
+      <p className="text-accent mx-1 my-2">⏱ {timeElapsed}</p>
       <Achievements currentStreakDays={currentStreakDays} />
+      <div className="flex">
+        <p className="text-sm mx-1 text-secondary">
+          Current: <span className="text-accent">{currentStreakDays}</span> d
+        </p>
+        <p className="text-sm mx-1 text-secondary">
+          Last: <span className="text-accent">{lastStreak}</span> d
+        </p>
+        <p className="text-sm mx-1 text-secondary">
+          Max: <span className="text-accent">{maxStreak}</span> d
+        </p>
+      </div>
       <div className="card-actions flex gap-2 mt-3">
-        <button className="btn btn-primary btn-md" onClick={onReset}>
+        <button className="btn btn-soft btn-secondary btn-md" onClick={onReset}>
           Reset
         </button>
-        <button className="btn btn-error btn-md" onClick={onDelete}>
+        <button className="btn btn-soft btn-error btn-md" onClick={onDelete}>
           Delete
         </button>
         <button
-          className="btn btn-secondary btn-md"
+          className="btn btn-outline btn-secondary btn-md"
           popoverTarget={popoverId}
           style={{ ["anchorName" as any]: `--anchor-${id}` }}
         >

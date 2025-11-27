@@ -72,10 +72,10 @@ const HabitCard = ({ id, onReset, onDelete }: HabitCardProps) => {
         </p>
       </div>
       <div className="card-actions flex gap-2 mt-3">
-        <button className="btn btn-soft btn-secondary btn-md" onClick={onReset}>
+        <button className="btn btn-secondary btn-md" onClick={onReset}>
           Reset
         </button>
-        <button className="btn btn-soft btn-error btn-md" onClick={onDelete}>
+        <button className="btn btn-error btn-md" onClick={onDelete}>
           Delete
         </button>
         <button

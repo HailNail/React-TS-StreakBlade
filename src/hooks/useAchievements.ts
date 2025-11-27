@@ -4,17 +4,19 @@ import { useToastStore } from "../stores/useToastStore";
 import { achievementsData } from "../utils/achievementsData";
 import { getNewAchievements } from "../utils/achievementsLogic";
 
+const TOASTS_KEY = "streakblade_shownToasts";
+
 export const useAchievements = () => {
   const { habits } = useHabitsStore();
   const { addToast } = useToastStore();
 
   const getShown = (): Record<number, number> =>
-    JSON.parse(localStorage.getItem("shownToasts") || "{}");
+    JSON.parse(localStorage.getItem(TOASTS_KEY) || "{}");
 
   const setShown = (habitId: number, achId: number) => {
     const prev = getShown();
     localStorage.setItem(
-      "shownToasts",
+      TOASTS_KEY,
       JSON.stringify({ ...prev, [habitId]: achId })
     );
   };

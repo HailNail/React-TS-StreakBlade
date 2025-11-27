@@ -18,7 +18,20 @@ export const getNewAchievements = (
 ): Achievement[] => {
   const allUnlocked = getUnlockedAchievements(habit, achievementsData);
 
-  return allUnlocked.filter((ach) => !shownId || !ach.id);
+  // Sort by days descending to get highest achievement first
+  const sortedUnlocked = [...allUnlocked].sort((a, b) => b.days - a.days);
+
+  if (sortedUnlocked.length === 0) return [];
+
+  // Get the highest achievement unlocked
+  const highestUnlocked = sortedUnlocked[0];
+
+  // If no achievement was shown before, or current highest is greater than what was shown
+  if (shownId === undefined || highestUnlocked.id > shownId) {
+    return [highestUnlocked];
+  }
+
+  return [];
 };
 
 export const getTopAchievement = (habit: Habit): Achievement | null => {

@@ -22,7 +22,7 @@ export const useHabitsStore = create<HabitStore>((set, get) => ({
     const newHabit: Habit = {
       id: Date.now(),
       name,
-      lastReset: new Date().toISOString(),
+      lastReset: new Date(Date.now() - 7 * 24 * 60 * 60 * 999.98).toISOString(),
       maxStreak: 0,
     };
     set({ habits: [...get().habits, newHabit] });
